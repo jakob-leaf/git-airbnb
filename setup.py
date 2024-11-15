@@ -1,5 +1,6 @@
 import pandas as pd
 import os
+import mysql.connector as mysconnect
 
 os.chdir("/Users/jake/Downloads/ab/airbnb-datasets")
 
@@ -160,17 +161,43 @@ locations['location_id'] = locations['index']
 locations.drop('index', axis=1)
 
 main_columns = ["id", "host_id", "location_id", "neighbourhood", "neighbourhood_cleansed", "neighbourhood_group_cleansed", "latitude", "longitude", "property_type", "room_type", "accommodates", "bathrooms", "bedrooms", "beds", "price", "minimum_nights", "maximum_nights", "availability_30", "availability_60", "availability_90", "availability_365"]
-hosts_columns = ["host_id", "host_name", "host_since", "host_location", "host_about", "host_response_time", "host_response_rate", "host_acceptance_rate", "host_is_superhost", "host_neighbourhood", "host_listings_count", "host_total_listings_count", "host_verifications", "host_has_profile_pic", "host_identity_verified", "calculated_host_listings_count", "calculated_host_listings_count_entire_homes", "calculated_host_listings_count_private_rooms", "calculated_host_listings_count_shared_rooms"]
-reviews_columns = ["id", "location_id", "number_of_reviews", "number_of_reviews_ltm", "number_of_reviews_l30d", "first_review", "last_review", "review_scores_rating", "review_scores_accuracy", "review_scores_cleanliness", "review_scores_checkin", "review_scores_communication", "review_scores_location", "review_scores_value"]
+main_dtypes = {"id": "int64", "host_id": "int64", "location_id": "int64", "neighbourhood": "object", "neighbourhood_cleansed": "object", "neighbourhood_group_cleansed": "object", "latitude": "float64", "longitude": "float64", "property_type": "object", "room_type": "object", "accommodates": "int64", "bathrooms": "float64", "bedrooms": "int64", "beds": "int64", "price": "float64", "minimum_nights": "int64", "maximum_nights": "int64", "availability_30": "int64", "availability_60": "int64", "availability_90": "int64", "availability_365": "int64"}
+main = pd.DataFrame(columns = main_columns)
+main.astype(main_dtypes).dtypes
 
-main = pd.DataFrame([])
-hosts = pd.DataFrame([])
-reviews = pd.DataFrame([])
+hosts_columns = ["host_id", "host_name", "host_since", "host_location", "host_response_time", "host_response_rate", "host_acceptance_rate", "host_is_superhost", "host_neighbourhood", "host_listings_count", "host_total_listings_count", "host_verifications", "host_has_profile_pic", "host_identity_verified", "calculated_host_listings_count", "calculated_host_listings_count_entire_homes", "calculated_host_listings_count_private_rooms", "calculated_host_listings_count_shared_rooms"]
+hosts_dtypes = {"host_id": "int64", "host_name":"object", "host_since": "datetime64[ns]", "host_location": "object", "host_response_time": "object", "host_response_rate": "object", "host_acceptance_rate": "object", "host_is_superhost": "object", "host_neighbourhood": "object", "host_listings_count": "int", "host_total_listings_count": "int", "host_verifications": "object", "host_has_profile_pic": "object", "host_identity_verified": "object", "calculated_host_listings_count": "int64", "calculated_host_listings_count_entire_homes": "int64", "calculated_host_listings_count_private_rooms": "int64", "calculated_host_listings_count_shared_rooms": "int64"}
+hosts = pd.DataFrame(columns = hosts_columns)
+hosts.astype(hosts_dtypes).dtypes
+
+reviews_columns = ["id", "location_id", "number_of_reviews", "number_of_reviews_ltm", "number_of_reviews_l30d", "first_review", "last_review", "review_scores_rating", "review_scores_accuracy", "review_scores_cleanliness", "review_scores_checkin", "review_scores_communication", "review_scores_location", "review_scores_value"]
+reviews_dtypes = {"id": "int64", "location_id": "int64", "number_of_reviews": "int64", "number_of_reviews_ltm": "int64", "number_of_reviews_l30d": "int64", "first_review": "datetime64[ns]", "last_review": "datetime64[ns]", "review_scores_rating": "float64", "review_scores_accuracy": "float64", "review_scores_cleanliness": "float64", "review_scores_checkin": "float64", "review_scores_communication": "float64", "review_scores_location": "float64", "review_scores_value": "float64"}
+reviews = pd.DataFrame(columns = reviews_columns)
+reviews.astype(reviews_dtypes).dtypes
 
 for i in range(len(csvs)):
-    df = pd.DataFrame(pd.read_csv(csvs[i]))
-    df["location_id"] = i
-    i_main = df[main_table_columns]
-    main = pd.concat([main, i_main], ignore_index = True)
-    i_hosts = df[hosts_table_columns]
-    i_reviews = df[reviews_table_columns]
+    try:
+        df = pd.DataFrame(pd.read_csv(csvs[i]))
+        df["location_id"] = i
+        i_main = df[main_columns]
+        main = pd.concat([main, i_main], ignore_index = True)
+        i_hosts = df[hosts_columns]
+        hosts = pd.concat([hosts, i_hosts], ignore_index = True)        
+        i_reviews = df[reviews_columns]
+        reviews = pd.concat([reviews, i_reviews], ignore_index = True)
+    except Exception as e:
+        print(f"issue loading location_id {i}")
+        continue
+
+# db = mysconnect.connect(host = 'localhost', user = 'root', password = '')
+# cursor = db.cursor()
+# cursor.execute('DROP DATABASE IF EXISTS airbnb;')
+# cursor.execute('CREATE DATABASE airbnb;')
+
+# db = mysconnect.connect(host = 'localhost', user = 'root', password = '', database = 'airbnb')
+# cursor = db.cursor()
+# cursor.execute('DROP TABLE IF EXISTS listings;')
+# cursor.execute('''
+#     CREATE TABLE listings (
+#         `id` int())
+
