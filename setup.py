@@ -1,3 +1,6 @@
+import pandas as pd
+import csv
+
 csvs = {
     0: 'albany.csv', 1: 'amsterdam.csv', 2: 'antwerp.csv', 3: 'asheville.csv', 4: 'athens.csv', 
     5: 'austin.csv', 6: 'bangkok.csv', 7: 'barcelona.csv', 8: 'barossa_valley.csv', 
@@ -150,3 +153,68 @@ locations = {
     116: ['Winnipeg', 'Manitoba', 'Canada', 'North America'],
     117: ['Zurich', 'Zurich', 'Switzerland', 'Europe']
 }
+
+
+necessary columns, separated by :
+
+MAIN
+
+id (listing id)
+host_id
+neighbourhood
+neighbourhood_cleansed
+neighbourhood_group_cleansed
+latitude
+longitude
+property_type
+room_type
+accommodates
+bathrooms
+bedrooms
+beds
+price
+minimum_nights
+maximum_nights
+availability_30
+availability_60
+availability_90
+availability_365
+_
+HOST
+
+host_id
+host_name
+host_since
+host_location
+host_about
+host_response_time
+host_response_rate
+host_acceptance_rate
+host_is_superhost
+host_neighbourhood
+host_listings_count
+host_total_listings_count
+host_verifications
+host_has_profile_pic
+host_identity_verified
+calculated_host_listings_count
+calculated_host_listings_count_entire_homes
+calculated_host_listings_count_private_rooms
+calculated_host_listings_count_shared_rooms
+_
+
+REVIEWS
+
+id
+number_of_reviews
+number_of_reviews_ltm
+number_of_reviews_l30d
+first_review
+last_review
+review_scores_rating
+review_scores_accuracy
+review_scores_cleanliness
+review_scores_checkin
+review_scores_communication
+review_scores_location
+review_scores_value
