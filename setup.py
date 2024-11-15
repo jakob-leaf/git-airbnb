@@ -1,8 +1,7 @@
 import pandas as pd
-import csv
 import os
 
-os.chdir(/Users/jake/downloads/ab/airbnb-datasets)
+os.chdir("/Users/jake/Downloads/ab/airbnb-datasets")
 
 csvs = {
     0: 'albany.csv', 1: 'amsterdam.csv', 2: 'antwerp.csv', 3: 'asheville.csv', 4: 'athens.csv', 
@@ -34,7 +33,6 @@ csvs = {
     113: 'vienna.csv', 114: 'washington_dc.csv', 115: 'western_australia.csv', 116: 'winnipeg.csv', 
     117: 'zurich.csv'
 }
-
 
 locations = {
     0: ['Albany', 'New York', 'United States', 'North America'],
@@ -156,31 +154,22 @@ locations = {
     116: ['Winnipeg', 'Manitoba', 'Canada', 'North America'],
     117: ['Zurich', 'Zurich', 'Switzerland', 'Europe']
 }
+locations = pd.DataFrame.from_dict(locations, orient='index', columns = ['City', 'Region', 'Country', 'Continent'])
+locations = locations.reset_index()
+locations['location_id'] = locations['index']
+locations.drop('index', axis=1)
 
 main_table_columns = ["id", "host_id", "neighbourhood", "neighbourhood_cleansed", "neighbourhood_group_cleansed", "latitude", "longitude", "property_type", "room_type", "accommodates", "bathrooms", "bedrooms", "beds", "price", "minimum_nights", "maximum_nights", "availability_30", "availability_60", "availability_90", "availability_365"]
 hosts_table_columns = ["host_id", "host_name", "host_since", "host_location", "host_about", "host_response_time", "host_response_rate", "host_acceptance_rate", "host_is_superhost", "host_neighbourhood", "host_listings_count", "host_total_listings_count", "host_verifications", "host_has_profile_pic", "host_identity_verified", "calculated_host_listings_count", "calculated_host_listings_count_entire_homes", "calculated_host_listings_count_private_rooms", "calculated_host_listings_count_shared_rooms"]
 reviews_table_columns = ["id", "number_of_reviews", "number_of_reviews_ltm", "number_of_reviews_l30d", "first_review", "last_review", "review_scores_rating", "review_scores_accuracy", "review_scores_cleanliness", "review_scores_checkin", "review_scores_communication", "review_scores_location", "review_scores_value"]
 
+main = pd.DataFrame([])
+hosts = pd.DataFrame([])
+reveiws = pd.DataFrame([])
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+for i in len(csvs):
+    df = pd.DataFrame(pd.read_csv(csvs[i]))
+    df['location_id'] = i
+    i_main = 
+    i_hosts = 
+    i_reviews = 
