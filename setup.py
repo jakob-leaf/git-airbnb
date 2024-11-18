@@ -5,37 +5,6 @@ import mysql.connector as mysconnect
 os.chdir("/Users/jake/Downloads/ab/airbnb-datasets") # Mac
 os.chdir("C:/Users/jleaf/OneDrive - Albany Beck/airbnb/datasets") # Windows
 
-csvs = {
-    0: 'albany.csv', 1: 'amsterdam.csv', 2: 'antwerp.csv', 3: 'asheville.csv', 4: 'athens.csv', 
-    5: 'austin.csv', 6: 'bangkok.csv', 7: 'barcelona.csv', 8: 'barossa_valley.csv', 
-    9: 'barwon_south_west.csv', 10: 'belize.csv', 11: 'bergamo.csv', 12: 'berlin.csv', 
-    13: 'bologna.csv', 14: 'bordeaux.csv', 15: 'boston.csv', 16: 'bozeman.csv', 17: 'brisbane.csv', 
-    18: 'bristol.csv', 19: 'broward_county.csv', 20: 'brussels.csv', 21: 'buenos_aires.csv', 
-    22: 'cambridge.csv', 23: 'cape_town.csv', 24: 'chicago.csv', 25: 'clark_county.csv', 
-    26: 'columbus.csv', 27: 'copenhagen.csv', 28: 'crete.csv', 29: 'dallas.csv', 30: 'denver.csv', 
-    31: 'dublin.csv', 32: 'edinburgh.csv', 33: 'euskadi.csv', 34: 'florence.csv', 35: 'fort_worth.csv', 
-    36: 'geneva.csv', 37: 'ghent.csv', 38: 'girona.csv', 39: 'hawaii.csv', 40: 'hong_kong.csv', 
-    41: 'istanbul.csv', 42: 'jersey_city.csv', 43: 'lisbon.csv', 44: 'london.csv', 
-    45: 'los_angeles.csv', 46: 'lyon.csv', 47: 'madrid.csv', 48: 'malaga.csv', 49: 'mallorca.csv', 
-    50: 'manchester.csv', 51: 'melbourne.csv', 52: 'menorca.csv', 53: 'mexico_city.csv', 
-    54: 'mid_north_coast.csv', 55: 'milan.csv', 56: 'montreal.csv', 57: 'mornington_peninsula.csv', 
-    58: 'munich.csv', 59: 'naples.csv', 60: 'nashville.csv', 61: 'new_brunswick.csv', 
-    62: 'new_orleans.csv', 63: 'new_york_city.csv', 64: 'new_zealand.csv', 65: 'newark.csv', 
-    66: 'northern_rivers.csv', 67: 'oakland.csv', 68: 'oslo.csv', 69: 'ottawa.csv', 
-    70: 'pacific_grove.csv', 71: 'paris.csv', 72: 'pays_basque.csv', 73: 'portland.csv', 
-    74: 'porto.csv', 75: 'prague.csv', 76: 'puglia.csv', 77: 'quebec_city.csv', 78: 'rhode_island.csv', 
-    79: 'riga.csv', 80: 'rio_de_janeiro.csv', 81: 'rochester.csv', 82: 'rome.csv', 83: 'rotterdam.csv', 
-    84: 'salem.csv', 85: 'san_diego.csv', 86: 'san_francisco.csv', 87: 'san_mateo_county.csv', 
-    88: 'santa_clara_country.csv', 89: 'santa_cruz_country.csv', 90: 'santiago.csv', 91: 'seattle.csv', 
-    92: 'sevilla.csv', 93: 'sicily.csv', 94: 'singapore.csv', 95: 'south_aegean.csv', 
-    96: 'stockholm.csv', 97: 'sunshine_coast.csv', 98: 'syndey.csv', 99: 'taipei.csv', 
-    100: 'tasmania.csv', 101: 'the_hague.csv', 102: 'thessaloniki.csv', 103: 'tokyo.csv', 
-    104: 'toronto.csv', 105: 'trentino.csv', 106: 'twin_cities.csv', 107: 'valencia.csv', 
-    108: 'vancouver.csv', 109: 'vaud.csv', 110: 'venice.csv', 111: 'victoria.csv', 
-    112: 'vienna.csv', 113: 'washington_dc.csv', 114: 'western_australia.csv', 115: 'winnipeg.csv', 
-    116: 'zurich.csv'
-}
-
 locations = {
     0: ['Albany', 'New York', 'United States', 'North America'],
     1: ['Amsterdam', 'North Holland', 'The Netherlands', 'Europe'],
@@ -156,6 +125,37 @@ locations = {
     116: ['Zurich', 'Zurich', 'Switzerland', 'Europe']
 }
 
+xls = {
+    0: 'albany.xlsx', 1: 'amsterdam.xlsx', 2: 'antwerp.xlsx', 3: 'asheville.xlsx', 4: 'athens.xlsx', 
+    5: 'austin.xlsx', 6: 'bangkok.xlsx', 7: 'barcelona.xlsx', 8: 'barossa_valley.xlsx', 
+    9: 'barwon_south_west.xlsx', 10: 'belize.xlsx', 11: 'bergamo.xlsx', 12: 'berlin.xlsx', 
+    13: 'bologna.xlsx', 14: 'bordeaux.xlsx', 15: 'boston.xlsx', 16: 'bozeman.xlsx', 17: 'brisbane.xlsx', 
+    18: 'bristol.xlsx', 19: 'broward_county.xlsx', 20: 'brussels.xlsx', 21: 'buenos_aires.xlsx', 
+    22: 'cambridge.xlsx', 23: 'cape_town.xlsx', 24: 'chicago.xlsx', 25: 'clark_county.xlsx', 
+    26: 'columbus.xlsx', 27: 'copenhagen.xlsx', 28: 'crete.xlsx', 29: 'dallas.xlsx', 30: 'denver.xlsx', 
+    31: 'dublin.xlsx', 32: 'edinburgh.xlsx', 33: 'euskadi.xlsx', 34: 'florence.xlsx', 35: 'fort_worth.xlsx', 
+    36: 'geneva.xlsx', 37: 'ghent.xlsx', 38: 'girona.xlsx', 39: 'hawaii.xlsx', 40: 'hong_kong.xlsx', 
+    41: 'istanbul.xlsx', 42: 'jersey_city.xlsx', 43: 'lisbon.xlsx', 44: 'london.xlsx', 
+    45: 'los_angeles.xlsx', 46: 'lyon.xlsx', 47: 'madrid.xlsx', 48: 'malaga.xlsx', 49: 'mallorca.xlsx', 
+    50: 'manchester.xlsx', 51: 'melbourne.xlsx', 52: 'menorca.xlsx', 53: 'mexico_city.xlsx', 
+    54: 'mid_north_coast.xlsx', 55: 'milan.xlsx', 56: 'montreal.xlsx', 57: 'mornington_peninsula.xlsx', 
+    58: 'munich.xlsx', 59: 'naples.xlsx', 60: 'nashville.xlsx', 61: 'new_brunswick.xlsx', 
+    62: 'new_orleans.xlsx', 63: 'new_york_city.xlsx', 64: 'new_zealand.xlsx', 65: 'newark.xlsx', 
+    66: 'northern_rivers.xlsx', 67: 'oakland.xlsx', 68: 'oslo.xlsx', 69: 'ottawa.xlsx', 
+    70: 'pacific_grove.xlsx', 71: 'paris.xlsx', 72: 'pays_basque.xlsx', 73: 'portland.xlsx', 
+    74: 'porto.xlsx', 75: 'prague.xlsx', 76: 'puglia.xlsx', 77: 'quebec_city.xlsx', 78: 'rhode_island.xlsx', 
+    79: 'riga.xlsx', 80: 'rio_de_janeiro.xlsx', 81: 'rochester.xlsx', 82: 'rome.xlsx', 83: 'rotterdam.xlsx', 
+    84: 'salem.xlsx', 85: 'san_diego.xlsx', 86: 'san_francisco.xlsx', 87: 'san_mateo_county.xlsx', 
+    88: 'santa_clara_country.xlsx', 89: 'santa_cruz_country.xlsx', 90: 'santiago.xlsx', 91: 'seattle.xlsx', 
+    92: 'sevilla.xlsx', 93: 'sicily.xlsx', 94: 'singapore.xlsx', 95: 'south_aegean.xlsx', 
+    96: 'stockholm.xlsx', 97: 'sunshine_coast.xlsx', 98: 'syndey.xlsx', 99: 'taipei.xlsx', 
+    100: 'tasmania.xlsx', 101: 'the_hague.xlsx', 102: 'thessaloniki.xlsx', 103: 'tokyo.xlsx', 
+    104: 'toronto.xlsx', 105: 'trentino.xlsx', 106: 'twin_cities.xlsx', 107: 'valencia.xlsx', 
+    108: 'vancouver.xlsx', 109: 'vaud.xlsx', 110: 'venice.xlsx', 111: 'victoria.xlsx', 
+    112: 'vienna.xlsx', 113: 'washington_dc.xlsx', 114: 'western_australia.xlsx', 115: 'winnipeg.xlsx', 
+    116: 'zurich.xlsx'
+}
+
 locations = pd.DataFrame.from_dict(locations, orient='index', columns = ['city', 'region', 'country', 'continent'])
 locations = locations.reset_index()
 locations['location_id'] = locations['index']
@@ -260,7 +260,6 @@ main_dtypes = {
     "availability_365": "Int64"
 }
 main = pd.DataFrame(columns = main_columns)
-main.astype(main_dtypes).dtypes
 
 hosts_columns = [
     "host_id",
@@ -301,7 +300,6 @@ hosts_dtypes = {
     "calculated_host_listings_count_shared_rooms": "Int64"
 }
 hosts = pd.DataFrame(columns = hosts_columns)
-hosts.astype(hosts_dtypes).dtypes
 
 reviews_columns = [
     "id",
@@ -336,14 +334,11 @@ reviews_dtypes = {
     "review_scores_value": "float64"
 }
 reviews = pd.DataFrame(columns = reviews_columns)
-reviews.astype(reviews_dtypes).dtypes
 
-for i in range(len(csvs)):
+for i in range(5):
     try:
-        df = pd.DataFrame(pd.read_csv(csvs[i]))
+        df = pd.DataFrame(pd.read_excel(xls[i]))
         df["location_id"] = i
-        df['price'] = df['price'].str[1:]
-        df['price'] = df['price'].to_numeric()
         i_main = df[main_columns]
         main = pd.concat([main, i_main], ignore_index = True)
         i_hosts = df[hosts_columns]
@@ -354,18 +349,19 @@ for i in range(len(csvs)):
         print(f"issue loading location_id {i}")
         continue
 
-# db = mysconnect.connect(host = 'localhost', user = 'root', password = '')
-# cursor = db.cursor()
-# cursor.execute('DROP DATABASE IF EXISTS airbnb;')
-# cursor.execute('CREATE DATABASE airbnb;')
+main['price'] = main['price'].str.replace(r'[^\d.]', '', regex=True).astype(float)
+main.astype(main_dtypes).dtypes
+hosts.astype(hosts_dtypes).dtypes
+reviews.astype(reviews_dtypes).dtypes
 
-# db = mysconnect.connect(host = 'localhost', user = 'root', password = '', database = 'airbnb')
-# cursor = db.cursor()
-# cursor.execute('DROP TABLE IF EXISTS listings;')
-# cursor.execute('''
-#     CREATE TABLE listings (
-#         `id` int())
+db = mysconnect.connect(host = 'localhost', user = 'root', password = '')
+cursor = db.cursor()
+cursor.execute('DROP DATABASE IF EXISTS airbnb;')
+cursor.execute('CREATE DATABASE airbnb;')
 
-main_columns = ["id", "host_id", "location_id", "neighbourhood", "neighbourhood_cleansed", "neighbourhood_group_cleansed", "latitude", "longitude", "property_type", "room_type", "accommodates", "bathrooms", "bedrooms", "beds", "price", "minimum_nights", "maximum_nights", "availability_30", "availability_60", "availability_90", "availability_365"]
-main_dtypes = {"id": "Int64", "host_id": "Int64", "location_id": "Int64", "neighbourhood": "object", "neighbourhood_cleansed": "object", "neighbourhood_group_cleansed": "object", "latitude": "float64", "longitude": "float64", "property_type": "object", "room_type": "object", "accommodates": "Int64", "bathrooms": "float64", "bedrooms": "Int64", "beds": "Int64", "price": "float64", "minimum_nights": "Int64", "maximum_nights": "Int64", "availability_30": "Int64", "availability_60": "Int64", "availability_90": "Int64", "availability_365": "Int64"}
-main = pd.DataFrame(columns = main_columns)
+db = mysconnect.connect(host = 'localhost', user = 'root', password = '', database = 'airbnb')
+cursor = db.cursor()
+cursor.execute('DROP TABLE IF EXISTS listings;')
+cursor.execute('''
+    CREATE TABLE listings (
+        `id` int())
