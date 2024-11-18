@@ -412,6 +412,8 @@ for index, row in hosts.iterrows():
         hosts = hosts.drop(index)
         continue
 
+# hosts = hosts.drop('host_since', axis = 1)
+
 cursor.execute('DROP TABLE IF EXISTS hosts;')
 cursor.execute('''
     CREATE TABLE hosts (
@@ -438,6 +440,22 @@ cursor.execute('''
 sql = "INSERT INTO hosts (host_id, host_since, host_location, host_response_time, host_response_rate, host_acceptance_rate, host_is_superhost, host_neighbourhood, host_listings_count, host_total_listings_count, host_verifications, host_has_profile_pic, host_identity_verified, calculated_host_listings_count, calculated_host_listings_count_entire_homes, calculated_host_listings_count_private_rooms, calculated_host_listings_count_shared_rooms) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)"
 for index, row in hosts.iterrows():
     cursor.execute(sql, tuple(row))
+
+for index, row in reviews.iterrows():
+    try:
+        reviews['first_review'] = pd.to_datetime(reviews['first_review'], format='%y/%m/%d %H:%M:%S')
+    except:
+        reviews = reviews.drop(index)
+        continue
+
+for index, row in reviews.iterrows():
+    try:
+        reviews['last_review'] = pd.to_datetime(reviews['last_review'], format='%y/%m/%d %H:%M:%S')
+    except:
+        reviews = reviews.drop(index)
+        continue
+
+# reviews = reviews.drop(columns = ['first_review', 'last_review'])
 
 cursor.execute('DROP TABLE IF EXISTS reviews;')
 cursor.execute('''
