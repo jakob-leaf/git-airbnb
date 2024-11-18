@@ -2,7 +2,7 @@ import pandas as pd
 import os
 import mysql.connector as mysconnect
 
-os.chdir("/Users/jake/Downloads/ab/airbnb-datasets") # Mac
+os.chdir("/Users/jake/Library/CloudStorage/OneDrive-AlbanyBeck/airbnb/datasets") # Mac
 os.chdir("C:/Users/jleaf/OneDrive - Albany Beck/airbnb/datasets") # Windows
 
 locations = {
