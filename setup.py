@@ -282,7 +282,7 @@ hosts_columns = [
 ]
 hosts_dtypes = {
     "host_id": "Int64",
-    "host_since": "datetime64[ns]",
+    "host_since": "datetime64[D]",
     "host_location": "object",
     "host_response_time": "object",
     "host_response_rate": "object",
@@ -323,8 +323,8 @@ reviews_dtypes = {
     "number_of_reviews": "Int64",
     "number_of_reviews_ltm": "Int64",
     "number_of_reviews_l30d": "Int64",
-    "first_review": "datetime64[ns]",
-    "last_review": "datetime64[ns]",
+    "first_review": "datetime64[D]",
+    "last_review": "datetime64[D]",
     "review_scores_rating": "float64",
     "review_scores_accuracy": "float64",
     "review_scores_cleanliness": "float64",
