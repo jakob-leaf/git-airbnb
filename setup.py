@@ -198,8 +198,6 @@ all_columns = [
     "number_of_reviews",
     "number_of_reviews_ltm",
     "number_of_reviews_l30d",
-    "first_review",
-    "last_review",
     "review_scores_rating",
     "review_scores_accuracy",
     "review_scores_cleanliness",
@@ -307,8 +305,6 @@ reviews_columns = [
     "number_of_reviews",
     "number_of_reviews_ltm",
     "number_of_reviews_l30d",
-    "first_review",
-    "last_review",
     "review_scores_rating",
     "review_scores_accuracy",
     "review_scores_cleanliness",
@@ -323,8 +319,6 @@ reviews_dtypes = {
     "number_of_reviews": "Int64",
     "number_of_reviews_ltm": "Int64",
     "number_of_reviews_l30d": "Int64",
-    "first_review": "datetime64[ns]",
-    "last_review": "datetime64[ns]",
     "review_scores_rating": "float64",
     "review_scores_accuracy": "float64",
     "review_scores_cleanliness": "float64",
@@ -441,22 +435,6 @@ sql = "INSERT INTO hosts (host_id, host_since, host_location, host_response_time
 for index, row in hosts.iterrows():
     cursor.execute(sql, tuple(row))
 
-for index, row in reviews.iterrows():
-    try:
-        reviews['first_review'] = pd.to_datetime(reviews['first_review'], format='%y/%m/%d %H:%M:%S')
-    except:
-        reviews = reviews.drop(index)
-        continue
-
-for index, row in reviews.iterrows():
-    try:
-        reviews['last_review'] = pd.to_datetime(reviews['last_review'], format='%y/%m/%d %H:%M:%S')
-    except:
-        reviews = reviews.drop(index)
-        continue
-
-# reviews = reviews.drop(columns = ['first_review', 'last_review'])
-
 cursor.execute('DROP TABLE IF EXISTS reviews;')
 cursor.execute('''
     CREATE TABLE reviews (
@@ -465,8 +443,6 @@ cursor.execute('''
     number_of_reviews BIGINT,
     number_of_reviews_ltm BIGINT,
     number_of_reviews_l30d BIGINT,
-    first_review DATETIME,
-    last_review DATETIME,
     review_scores_rating DOUBLE,
     review_scores_accuracy DOUBLE,
     review_scores_cleanliness DOUBLE,
@@ -479,11 +455,9 @@ cursor.execute('''
     );
 ''')
 
-sql = "INSERT INTO reviews (id, location_id, number_of_reviews, number_of_reviews_ltm, number_of_reviews_l30d, first_review, last_review, review_scores_rating, review_scores_accuracy, review_scores_cleanliness, review_scores_checkin, review_scores_communication, review_scores_location, review_scores_value) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)"
+sql = "INSERT INTO reviews (id, location_id, number_of_reviews, number_of_reviews_ltm, number_of_reviews_l30d, review_scores_rating, review_scores_accuracy, review_scores_cleanliness, review_scores_checkin, review_scores_communication, review_scores_location, review_scores_value) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)"
 for index, row in reviews.iterrows():
     cursor.execute(sql, tuple(row))
-
-
 
 
 db.commit() # Commit changes
