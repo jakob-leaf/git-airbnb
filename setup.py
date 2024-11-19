@@ -2,7 +2,7 @@ import pandas as pd
 import os
 import mysql.connector as mysconnect
 
-os.chdir("/Users/jake/Downloads/ab/airbnb-datasets") # Mac
+os.chdir("/Users/jake/Library/CloudStorage/OneDrive-AlbanyBeck/airbnb/datasets") # Mac
 os.chdir("C:/Users/jleaf/OneDrive - Albany Beck/airbnb/datasets") # Windows
 
 locations = {
@@ -333,6 +333,9 @@ for i in range(len(xls)):
     try:
         df = pd.DataFrame(pd.read_excel(xls[i]))
         df["location_id"] = i
+#        df['host_since'].dt.date
+#        df['first_review'].dt.date
+#        df['last_review'].dt.date
         i_main = df[main_columns]
         main = pd.concat([main, i_main], ignore_index = True)
         i_hosts = df[hosts_columns]
