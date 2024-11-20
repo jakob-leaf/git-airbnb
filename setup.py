@@ -64,7 +64,7 @@ locations = {
     54: ['Mid North Coast', 'New South Wales', 'Australia', 'Oceania'],
     55: ['Milan', 'Lombardy', 'Italy', 'Europe'],
     56: ['Montreal', 'Quebec', 'Canada', 'North America'],
-    57: ['Mornington Peninsula', 'Victoria', 'Austrlia', 'Oceania'],
+    57: ['Mornington Peninsula', 'Victoria', 'Australia', 'Oceania'],
     58: ['Munich', 'Bavaria', 'Germany', 'Europe'],
     59: ['Naples', 'Campania', 'Italy', 'Europe'],
     60: ['Nashville', 'Tennessee', 'United States', 'North America'],
@@ -487,7 +487,7 @@ cursor.execute('''
     review_scores_checkin DOUBLE,
     review_scores_communication DOUBLE,
     review_scores_location DOUBLE,
-    review_scores_value DOUBLE,
+    review_scores_value DOUBLE
 );
 ''')
 
