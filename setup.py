@@ -1,6 +1,7 @@
 import pandas as pd
 import os
 import mysql.connector as mysconnect
+import numpy as np
 
 os.chdir("/Users/jake/Library/CloudStorage/OneDrive-AlbanyBeck/airbnb/datasets") # Mac
 # os.chdir("C:/Users/jleaf/OneDrive - Albany Beck/airbnb/datasets") # Windows
@@ -285,13 +286,13 @@ hosts_dtypes = {
     "host_response_time": "object",
     "host_response_rate": "Float64",
     "host_acceptance_rate": "Float64",
-    "host_is_superhost": "object",
+    "host_is_superhost": "bool",
     "host_neighbourhood": "object",
     "host_listings_count": "Int64",
     "host_total_listings_count": "Int64",
     "host_verifications": "object",
-    "host_has_profile_pic": "object",
-    "host_identity_verified": "object",
+    "host_has_profile_pic": "bool",
+    "host_identity_verified": "bool",
     "calculated_host_listings_count": "Int64",
     "calculated_host_listings_count_entire_homes": "Int64",
     "calculated_host_listings_count_private_rooms": "Int64",
@@ -347,68 +348,26 @@ for i in range(len(xls)):
 
 main['price'] = main['price'].str.replace(r'[^\d.]', '', regex=True).astype(float)
 hosts['host_since'] = pd.to_datetime(hosts['host_since'], format='%y/%m/%d %H:%M:%S')
-main.fillna(value={
-    "host_id": "",
-    "host_since": "",
-    "host_location": "",
-    "host_response_time": "",
-    "host_response_rate": "",
-    "host_acceptance_rate": "",
-    "host_is_superhost": "",
-    "host_neighbourhood": "",
-    "host_listings_count": "",
-    "host_total_listings_count": "",
-    "host_verifications": "",
-    "host_has_profile_pic": "",
-    "host_identity_verified": "",
-    "calculated_host_listings_count": "",
-    "calculated_host_listings_count_entire_homes": "",
-    "calculated_host_listings_count_private_rooms": "",
-    "calculated_host_listings_count_shared_rooms": ""
-}, inplace=True)
-hosts.fillna(value={
-    "host_id": "",
-    "host_since": "",
-    "host_location": "",
-    "host_response_time": "",
-    "host_response_rate": "",
-    "host_acceptance_rate": "",
-    "host_is_superhost": "",
-    "host_neighbourhood": "",
-    "host_listings_count": "",
-    "host_total_listings_count": "",
-    "host_verifications": "",
-    "host_has_profile_pic": "",
-    "host_identity_verified": "",
-    "calculated_host_listings_count": "",
-    "calculated_host_listings_count_entire_homes": "",
-    "calculated_host_listings_count_private_rooms": "",
-    "calculated_host_listings_count_shared_rooms": ""
-}, inplace=True)
-reviews.fillna(value={
-    "id": "",
-    "location_id": "",
-    "number_of_reviews": "",
-    "number_of_reviews_ltm": "",
-    "number_of_reviews_l30d": "",
-    "review_scores_rating": "",
-    "review_scores_accuracy": "",
-    "review_scores_cleanliness": "",
-    "review_scores_checkin": "",
-    "review_scores_communication": "",
-    "review_scores_location": "",
-    "review_scores_value": ""
-}, inplace=True)
-hosts = hosts.replace("", None)
-reviews = reviews.replace("", None)
+
+bool_cols = ['host_is_superhost', 'host_has_profile_pic', 'host_identity_verified']
+for i in bool_cols:
+    hosts[i] = hosts[i].replace('t', True)
+    hosts[i] = hosts[i].replace('f', False)
+
+main = main.replace({np.nan: None})
 main.astype(main_dtypes).dtypes
+
+hosts = hosts.replace({np.nan: None})
 hosts.astype(hosts_dtypes).dtypes
+
+reviews = reviews.replace({np.nan: None})
 reviews.astype(reviews_dtypes).dtypes
 
 db = mysconnect.connect(host = 'localhost', user = 'root', password = '')
 cursor = db.cursor()
 cursor.execute('DROP DATABASE IF EXISTS airbnb;')
 cursor.execute('CREATE DATABASE airbnb;')
+print('Database airbnb created')
 
 db = mysconnect.connect(host = 'localhost', user = 'root', password = '', database = 'airbnb')
 cursor = db.cursor()
@@ -420,30 +379,31 @@ cursor.execute('''
         region varchar(255),
         country varchar(255),
         continent varchar(255),
-        location_id int(5) PRIMARY KEY
+        location_id INT PRIMARY KEY
     );
 ''')
 
 sql = 'INSERT INTO locations (city, region, country, continent, location_id) VALUES (%s, %s, %s, %s, %s)'
 for index, row in locations.iterrows():
     cursor.execute(sql, tuple(row))
+print('Locations table created')
 
-cursor.execute('DROP TABLE IF EXISTS hosts;')
+cursor.execute('DROP TABLE IF EXISTS hosts_all_rows;')
 cursor.execute('''
-    CREATE TABLE hosts (
+    CREATE TABLE hosts_all_rows (
         host_id BIGINT,
         host_since DATETIME,
         host_location VARCHAR(255),
         host_response_time VARCHAR(255),
         host_response_rate VARCHAR(255),
         host_acceptance_rate VARCHAR(255),
-        host_is_superhost VARCHAR(255),
+        host_is_superhost BOOL,
         host_neighbourhood VARCHAR(255),
         host_listings_count INT,
         host_total_listings_count INT,
         host_verifications VARCHAR(255),
-        host_has_profile_pic VARCHAR(255),
-        host_identity_verified VARCHAR(255),
+        host_has_profile_pic BOOL,
+        host_identity_verified BOOL,
         calculated_host_listings_count INT,
         calculated_host_listings_count_entire_homes INT,
         calculated_host_listings_count_private_rooms INT,
@@ -451,16 +411,29 @@ cursor.execute('''
     );
 ''')
 
-sql = "INSERT INTO hosts (host_id, host_since, host_location, host_response_time, host_response_rate, host_acceptance_rate, host_is_superhost, host_neighbourhood, host_listings_count, host_total_listings_count, host_verifications, host_has_profile_pic, host_identity_verified, calculated_host_listings_count, calculated_host_listings_count_entire_homes, calculated_host_listings_count_private_rooms, calculated_host_listings_count_shared_rooms) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)"
+sql = "INSERT INTO hosts_all_rows (host_id, host_since, host_location, host_response_time, host_response_rate, host_acceptance_rate, host_is_superhost, host_neighbourhood, host_listings_count, host_total_listings_count, host_verifications, host_has_profile_pic, host_identity_verified, calculated_host_listings_count, calculated_host_listings_count_entire_homes, calculated_host_listings_count_private_rooms, calculated_host_listings_count_shared_rooms) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)"
 for index, row in hosts.iterrows():
     cursor.execute(sql, tuple(row))
 
-cursor.execute('DROP TABLE IF EXISTS listings;')
+cursor.execute('DROP TABLE IF EXISTS hosts;')
 cursor.execute('''
-    CREATE TABLE listings (
-        id BIGINT PRIMARY KEY,
+    CREATE TABLE hosts AS (
+        SELECT *
+        FROM hosts_all_rows
+        GROUP BY host_id
+        )
+    ;
+    ''')
+cursor.execute('ALTER TABLE hosts ADD PRIMARY KEY (host_id)')
+cursor.execute('DROP TABLE hosts_all_rows')
+print('Hosts table created')
+
+cursor.execute('DROP TABLE IF EXISTS listings_all_rows;')
+cursor.execute('''
+    CREATE TABLE listings_all_rows (
+        id BIGINT,
         host_id BIGINT,
-        location_id BIGINT FOREIGN KEY,
+        location_id INT,
         neighbourhood VARCHAR(255),
         neighbourhood_cleansed VARCHAR(255),
         neighbourhood_group_cleansed VARCHAR(255),
@@ -478,20 +451,33 @@ cursor.execute('''
         availability_30 INT,
         availability_60 INT,
         availability_90 INT,
-        availability_365 INT,
-        FOREIGN KEY location_id REFERENCES locations(location_id),
+        availability_365 INT
     );
 ''')
 
-sql = 'INSERT INTO listings (id, host_id, location_id, neighbourhood, neighbourhood_cleansed, neighbourhood_group_cleansed, latitude, longitude, property_type, room_type, accommodates, bathrooms, bedrooms, beds, price, minimum_nights, maximum_nights, availability_30, availability_60, availability_90, availability_365) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'
+sql = 'INSERT INTO listings_all_rows (id, host_id, location_id, neighbourhood, neighbourhood_cleansed, neighbourhood_group_cleansed, latitude, longitude, property_type, room_type, accommodates, bathrooms, bedrooms, beds, price, minimum_nights, maximum_nights, availability_30, availability_60, availability_90, availability_365) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'
 for index, row in main.iterrows():
     cursor.execute(sql, tuple(row))
 
-cursor.execute('DROP TABLE IF EXISTS reviews;')
 cursor.execute('''
-    CREATE TABLE reviews (
-    id BIGINT FOREIGN KEY,
-    location_id BIGINT,
+    CREATE TABLE listings AS (
+        SELECT *
+        FROM listings_all_rows
+        GROUP BY id
+        )
+    ;
+    ''')
+cursor.execute('ALTER TABLE listings ADD PRIMARY KEY (id)')
+cursor.execute('ALTER TABLE listings ADD FOREIGN KEY (host_id) REFERENCES hosts(host_id)')
+cursor.execute('ALTER TABLE listings ADD FOREIGN KEY (location_id) REFERENCES locations(location_id)')
+cursor.execute('DROP TABLE listings_all_rows')
+print('Listings table created')
+
+cursor.execute('DROP TABLE IF EXISTS reviews_all;')
+cursor.execute('''
+    CREATE TABLE reviews_all (
+    id BIGINT,
+    location_id INT,
     number_of_reviews BIGINT,
     number_of_reviews_ltm BIGINT,
     number_of_reviews_l30d BIGINT,
@@ -502,16 +488,26 @@ cursor.execute('''
     review_scores_communication DOUBLE,
     review_scores_location DOUBLE,
     review_scores_value DOUBLE,
-    FOREIGN KEY id REFERENCES listings(id),
-    FOREIGN KEY location_id REFERENCES locations(location_id)
 );
-
-    );
 ''')
 
-sql = "INSERT INTO reviews (id, location_id, number_of_reviews, number_of_reviews_ltm, number_of_reviews_l30d, review_scores_rating, review_scores_accuracy, review_scores_cleanliness, review_scores_checkin, review_scores_communication, review_scores_location, review_scores_value) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)"
+sql = "INSERT INTO reviews_all (id, location_id, number_of_reviews, number_of_reviews_ltm, number_of_reviews_l30d, review_scores_rating, review_scores_accuracy, review_scores_cleanliness, review_scores_checkin, review_scores_communication, review_scores_location, review_scores_value) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)"
 for index, row in reviews.iterrows():
     cursor.execute(sql, tuple(row))
+
+cursor.execute('''
+    CREATE TABLE reviews AS (
+        SELECT *
+        FROM reviews_all
+        GROUP BY id
+        )
+    ;
+    ''')
+
+cursor.execute('ALTER TABLE reviews ADD FOREIGN KEY (id) REFERENCES listings(id)')
+cursor.execute('ALTER TABLE reviews ADD FOREIGN KEY (location_id) REFERENCES locations(location_id)')
+cursor.execute('DROP TABLE reviews_all')
+print('Reviews table created')
 
 db.commit() # Commit changes
 cursor.close() # Close cursor in database
