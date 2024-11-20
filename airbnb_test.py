@@ -285,13 +285,13 @@ hosts_dtypes = {
     "host_response_time": "object",
     "host_response_rate": "Float64",
     "host_acceptance_rate": "Float64",
-    "host_is_superhost": "object",
+    "host_is_superhost": "bool",
     "host_neighbourhood": "object",
     "host_listings_count": "Int64",
     "host_total_listings_count": "Int64",
     "host_verifications": "object",
-    "host_has_profile_pic": "object",
-    "host_identity_verified": "object",
+    "host_has_profile_pic": "bool",
+    "host_identity_verified": "bool",
     "calculated_host_listings_count": "Int64",
     "calculated_host_listings_count_entire_homes": "Int64",
     "calculated_host_listings_count_private_rooms": "Int64",
@@ -347,60 +347,15 @@ for i in range(5):
 
 main['price'] = main['price'].str.replace(r'[^\d.]', '', regex=True).astype(float)
 hosts['host_since'] = pd.to_datetime(hosts['host_since'], format='%y/%m/%d %H:%M:%S')
-main.fillna(value={
-    "host_id": "",
-    "host_since": "",
-    "host_location": "",
-    "host_response_time": "",
-    "host_response_rate": "",
-    "host_acceptance_rate": "",
-    "host_is_superhost": "",
-    "host_neighbourhood": "",
-    "host_listings_count": "",
-    "host_total_listings_count": "",
-    "host_verifications": "",
-    "host_has_profile_pic": "",
-    "host_identity_verified": "",
-    "calculated_host_listings_count": "",
-    "calculated_host_listings_count_entire_homes": "",
-    "calculated_host_listings_count_private_rooms": "",
-    "calculated_host_listings_count_shared_rooms": ""
-}, inplace=True)
-hosts.fillna(value={
-    "host_id": "",
-    "host_since": "",
-    "host_location": "",
-    "host_response_time": "",
-    "host_response_rate": "",
-    "host_acceptance_rate": "",
-    "host_is_superhost": "",
-    "host_neighbourhood": "",
-    "host_listings_count": "",
-    "host_total_listings_count": "",
-    "host_verifications": "",
-    "host_has_profile_pic": "",
-    "host_identity_verified": "",
-    "calculated_host_listings_count": "",
-    "calculated_host_listings_count_entire_homes": "",
-    "calculated_host_listings_count_private_rooms": "",
-    "calculated_host_listings_count_shared_rooms": ""
-}, inplace=True)
-reviews.fillna(value={
-    "id": "",
-    "location_id": "",
-    "number_of_reviews": "",
-    "number_of_reviews_ltm": "",
-    "number_of_reviews_l30d": "",
-    "review_scores_rating": "",
-    "review_scores_accuracy": "",
-    "review_scores_cleanliness": "",
-    "review_scores_checkin": "",
-    "review_scores_communication": "",
-    "review_scores_location": "",
-    "review_scores_value": ""
-}, inplace=True)
-hosts = hosts.replace("", None)
-reviews = reviews.replace("", None)
+
+bool_cols = ['host_is_superhost', 'host_has_profile_pic', 'host_identity_verified']
+for i in bool_cols:
+    hosts[i] = hosts[i].replace('t', True)
+    hosts[i] = hosts[i].replace('f', False)
+
+main.fillna(None, inplace=True)
+hosts.fillna(None, inplace=True)
+reviews.fillna(None, inplace=True)
 main.astype(main_dtypes).dtypes
 hosts.astype(hosts_dtypes).dtypes
 reviews.astype(reviews_dtypes).dtypes
@@ -428,22 +383,22 @@ sql = 'INSERT INTO locations (city, region, country, continent, location_id) VAL
 for index, row in locations.iterrows():
     cursor.execute(sql, tuple(row))
 
-cursor.execute('DROP TABLE IF EXISTS hosts;')
+cursor.execute('DROP TABLE IF EXISTS hosts_all_rows;')
 cursor.execute('''
-    CREATE TABLE hosts (
+    CREATE TABLE hosts_all_rows (
         host_id BIGINT,
         host_since DATETIME,
         host_location VARCHAR(255),
         host_response_time VARCHAR(255),
         host_response_rate VARCHAR(255),
         host_acceptance_rate VARCHAR(255),
-        host_is_superhost VARCHAR(255),
+        host_is_superhost BOOL,
         host_neighbourhood VARCHAR(255),
         host_listings_count INT,
         host_total_listings_count INT,
         host_verifications VARCHAR(255),
-        host_has_profile_pic VARCHAR(255),
-        host_identity_verified VARCHAR(255),
+        host_has_profile_pic BOOL,
+        host_identity_verified BOOL,
         calculated_host_listings_count INT,
         calculated_host_listings_count_entire_homes INT,
         calculated_host_listings_count_private_rooms INT,
@@ -451,9 +406,38 @@ cursor.execute('''
     );
 ''')
 
-sql = "INSERT INTO hosts (host_id, host_since, host_location, host_response_time, host_response_rate, host_acceptance_rate, host_is_superhost, host_neighbourhood, host_listings_count, host_total_listings_count, host_verifications, host_has_profile_pic, host_identity_verified, calculated_host_listings_count, calculated_host_listings_count_entire_homes, calculated_host_listings_count_private_rooms, calculated_host_listings_count_shared_rooms) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)"
+sql = "INSERT INTO hosts_all_rows (host_id, host_since, host_location, host_response_time, host_response_rate, host_acceptance_rate, host_is_superhost, host_neighbourhood, host_listings_count, host_total_listings_count, host_verifications, host_has_profile_pic, host_identity_verified, calculated_host_listings_count, calculated_host_listings_count_entire_homes, calculated_host_listings_count_private_rooms, calculated_host_listings_count_shared_rooms) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)"
 for index, row in hosts.iterrows():
     cursor.execute(sql, tuple(row))
+
+cursor.execute('DROP TABLE IF EXISTS hosts;')
+cursor.execute('''
+    CREATE TABLE hosts AS (
+        SELECT 
+            DISTINCT(host_id),
+            host_since,
+            host_location,
+            host_response_time,
+            host_response_rate,
+            host_acceptance_rate,
+            host_is_superhost,
+            host_neighbourhood,
+            host_listings_count,
+            host_total_listings_count,
+            host_verifications,
+            host_has_profile_pic,
+            host_identity_verified,
+            calculated_host_listings_count,
+            calculated_host_listings_count_entire_homes,
+            calculated_host_listings_count_private_rooms,
+            calculated_host_listings_count_shared_rooms
+        FROM hosts_all_rows
+        )
+    ;
+    ''')
+cursor.execute('ALTER TABLE hosts ADD PRIMARY KEY (host_id)')
+cursor.execute('DROP TABLE hosts_all_rows')
+
 
 cursor.execute('DROP TABLE IF EXISTS listings;')
 cursor.execute('''
