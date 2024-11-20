@@ -241,15 +241,15 @@ main_dtypes = {
     "neighbourhood": "object",
     "neighbourhood_cleansed": "object",
     "neighbourhood_group_cleansed": "object",
-    "latitude": "float64",
-    "longitude": "float64",
+    "latitude": "Float64",
+    "longitude": "Float64",
     "property_type": "object",
     "room_type": "object",
     "accommodates": "Int64",
-    "bathrooms": "float64",
-    "bedrooms": "float64",
-    "beds": "float64",
-    "price": "float64",
+    "bathrooms": "Float64",
+    "bedrooms": "Float64",
+    "beds": "Float64",
+    "price": "Float64",
     "minimum_nights": "Int64",
     "maximum_nights": "Int64",
     "availability_30": "Int64",
@@ -283,8 +283,8 @@ hosts_dtypes = {
     "host_since": "datetime64[ns]",
     "host_location": "object",
     "host_response_time": "object",
-    "host_response_rate": "object",
-    "host_acceptance_rate": "object",
+    "host_response_rate": "Float64",
+    "host_acceptance_rate": "Float64",
     "host_is_superhost": "object",
     "host_neighbourhood": "object",
     "host_listings_count": "Int64",
@@ -319,13 +319,13 @@ reviews_dtypes = {
     "number_of_reviews": "Int64",
     "number_of_reviews_ltm": "Int64",
     "number_of_reviews_l30d": "Int64",
-    "review_scores_rating": "float64",
-    "review_scores_accuracy": "float64",
-    "review_scores_cleanliness": "float64",
-    "review_scores_checkin": "float64",
-    "review_scores_communication": "float64",
-    "review_scores_location": "float64",
-    "review_scores_value": "float64"
+    "review_scores_rating": "Float64",
+    "review_scores_accuracy": "Float64",
+    "review_scores_cleanliness": "Float64",
+    "review_scores_checkin": "Float64",
+    "review_scores_communication": "Float64",
+    "review_scores_location": "Float64",
+    "review_scores_value": "Float64"
 }
 reviews = pd.DataFrame(columns = reviews_columns)
 
@@ -346,6 +346,7 @@ for i in range(len(xls)):
         continue
 
 main['price'] = main['price'].str.replace(r'[^\d.]', '', regex=True).astype(float)
+hosts['host_since'] = pd.to_datetime(hosts['host_since'], format='%y/%m/%d %H:%M:%S')
 main.fillna(value={
     "host_id": "",
     "host_since": "",
@@ -398,6 +399,8 @@ reviews.fillna(value={
     "review_scores_location": "",
     "review_scores_value": ""
 }, inplace=True)
+hosts = hosts.replace("", None)
+reviews = reviews.replace("", None)
 main.astype(main_dtypes).dtypes
 hosts.astype(hosts_dtypes).dtypes
 reviews.astype(reviews_dtypes).dtypes
@@ -425,6 +428,33 @@ sql = 'INSERT INTO locations (city, region, country, continent, location_id) VAL
 for index, row in locations.iterrows():
     cursor.execute(sql, tuple(row))
 
+cursor.execute('DROP TABLE IF EXISTS hosts;')
+cursor.execute('''
+    CREATE TABLE hosts (
+        host_id BIGINT,
+        host_since DATETIME,
+        host_location VARCHAR(255),
+        host_response_time VARCHAR(255),
+        host_response_rate VARCHAR(255),
+        host_acceptance_rate VARCHAR(255),
+        host_is_superhost VARCHAR(255),
+        host_neighbourhood VARCHAR(255),
+        host_listings_count INT,
+        host_total_listings_count INT,
+        host_verifications VARCHAR(255),
+        host_has_profile_pic VARCHAR(255),
+        host_identity_verified VARCHAR(255),
+        calculated_host_listings_count INT,
+        calculated_host_listings_count_entire_homes INT,
+        calculated_host_listings_count_private_rooms INT,
+        calculated_host_listings_count_shared_rooms INT
+    );
+''')
+
+sql = "INSERT INTO hosts (host_id, host_since, host_location, host_response_time, host_response_rate, host_acceptance_rate, host_is_superhost, host_neighbourhood, host_listings_count, host_total_listings_count, host_verifications, host_has_profile_pic, host_identity_verified, calculated_host_listings_count, calculated_host_listings_count_entire_homes, calculated_host_listings_count_private_rooms, calculated_host_listings_count_shared_rooms) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)"
+for index, row in hosts.iterrows():
+    cursor.execute(sql, tuple(row))
+
 cursor.execute('DROP TABLE IF EXISTS listings;')
 cursor.execute('''
     CREATE TABLE listings (
@@ -449,7 +479,7 @@ cursor.execute('''
         availability_60 INT,
         availability_90 INT,
         availability_365 INT,
-        FOREIGN KEY location_id REFERENCES locations(location_id)
+        FOREIGN KEY location_id REFERENCES locations(location_id),
     );
 ''')
 
@@ -457,44 +487,10 @@ sql = 'INSERT INTO listings (id, host_id, location_id, neighbourhood, neighbourh
 for index, row in main.iterrows():
     cursor.execute(sql, tuple(row))
 
-for index, row in hosts.iterrows():
-    try:
-        hosts['host_since'] = pd.to_datetime(hosts['host_since'], format='%y/%m/%d %H:%M:%S')
-    except:
-        hosts = hosts.drop(index)
-        continue
-
-cursor.execute('DROP TABLE IF EXISTS hosts;')
-cursor.execute('''
-    CREATE TABLE hosts (
-        host_id BIGINT PRIMARY KEY,
-        host_since DATETIME,
-        host_location VARCHAR(255),
-        host_response_time VARCHAR(255),
-        host_response_rate VARCHAR(255),
-        host_acceptance_rate VARCHAR(255),
-        host_is_superhost VARCHAR(255),
-        host_neighbourhood VARCHAR(255),
-        host_listings_count INT,
-        host_total_listings_count INT,
-        host_verifications VARCHAR(255),
-        host_has_profile_pic VARCHAR(255),
-        host_identity_verified VARCHAR(255),
-        calculated_host_listings_count INT,
-        calculated_host_listings_count_entire_homes INT,
-        calculated_host_listings_count_private_rooms INT,
-        calculated_host_listings_count_shared_rooms INT
-    );
-''')
-
-sql = "INSERT INTO hosts (host_id, host_since, host_location, host_response_time, host_response_rate, host_acceptance_rate, host_is_superhost, host_neighbourhood, host_listings_count, host_total_listings_count, host_verifications, host_has_profile_pic, host_identity_verified, calculated_host_listings_count, calculated_host_listings_count_entire_homes, calculated_host_listings_count_private_rooms, calculated_host_listings_count_shared_rooms) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)"
-for index, row in hosts.iterrows():
-    cursor.execute(sql, tuple(row))
-
 cursor.execute('DROP TABLE IF EXISTS reviews;')
 cursor.execute('''
     CREATE TABLE reviews (
-    id BIGINT,
+    id BIGINT FOREIGN KEY,
     location_id BIGINT,
     number_of_reviews BIGINT,
     number_of_reviews_ltm BIGINT,
@@ -505,7 +501,9 @@ cursor.execute('''
     review_scores_checkin DOUBLE,
     review_scores_communication DOUBLE,
     review_scores_location DOUBLE,
-    review_scores_value DOUBLE
+    review_scores_value DOUBLE,
+    FOREIGN KEY id REFERENCES listings(id),
+    FOREIGN KEY location_id REFERENCES locations(location_id)
 );
 
     );
@@ -514,7 +512,6 @@ cursor.execute('''
 sql = "INSERT INTO reviews (id, location_id, number_of_reviews, number_of_reviews_ltm, number_of_reviews_l30d, review_scores_rating, review_scores_accuracy, review_scores_cleanliness, review_scores_checkin, review_scores_communication, review_scores_location, review_scores_value) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)"
 for index, row in reviews.iterrows():
     cursor.execute(sql, tuple(row))
-
 
 db.commit() # Commit changes
 cursor.close() # Close cursor in database

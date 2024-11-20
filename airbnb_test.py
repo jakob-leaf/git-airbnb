@@ -1,6 +1,7 @@
 import pandas as pd
 import os
 import mysql.connector as mysconnect
+import numpy as np
 
 os.chdir("/Users/jake/Library/CloudStorage/OneDrive-AlbanyBeck/airbnb/datasets") # Mac
 # os.chdir("C:/Users/jleaf/OneDrive - Albany Beck/airbnb/datasets") # Windows
@@ -353,11 +354,13 @@ for i in bool_cols:
     hosts[i] = hosts[i].replace('t', True)
     hosts[i] = hosts[i].replace('f', False)
 
-main.fillna(None, inplace=True)
-hosts.fillna(None, inplace=True)
-reviews.fillna(None, inplace=True)
+main = main.replace({np.nan: None})
 main.astype(main_dtypes).dtypes
+
+hosts = hosts.replace({np.nan: None})
 hosts.astype(hosts_dtypes).dtypes
+
+reviews = reviews.replace({np.nan: None})
 reviews.astype(reviews_dtypes).dtypes
 
 db = mysconnect.connect(host = 'localhost', user = 'root', password = '')
