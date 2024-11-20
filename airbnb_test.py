@@ -378,7 +378,7 @@ cursor.execute('''
         region varchar(255),
         country varchar(255),
         continent varchar(255),
-        location_id int(5) PRIMARY KEY
+        location_id INT PRIMARY KEY
     );
 ''')
 
@@ -416,25 +416,9 @@ for index, row in hosts.iterrows():
 cursor.execute('DROP TABLE IF EXISTS hosts;')
 cursor.execute('''
     CREATE TABLE hosts AS (
-        SELECT 
-            DISTINCT(host_id),
-            host_since,
-            host_location,
-            host_response_time,
-            host_response_rate,
-            host_acceptance_rate,
-            host_is_superhost,
-            host_neighbourhood,
-            host_listings_count,
-            host_total_listings_count,
-            host_verifications,
-            host_has_profile_pic,
-            host_identity_verified,
-            calculated_host_listings_count,
-            calculated_host_listings_count_entire_homes,
-            calculated_host_listings_count_private_rooms,
-            calculated_host_listings_count_shared_rooms
+        SELECT *
         FROM hosts_all_rows
+        GROUP BY host_id
         )
     ;
     ''')
@@ -442,12 +426,12 @@ cursor.execute('ALTER TABLE hosts ADD PRIMARY KEY (host_id)')
 cursor.execute('DROP TABLE hosts_all_rows')
 
 
-cursor.execute('DROP TABLE IF EXISTS listings;')
+cursor.execute('DROP TABLE IF EXISTS listings_all_rows;')
 cursor.execute('''
-    CREATE TABLE listings (
-        id BIGINT PRIMARY KEY,
+    CREATE TABLE listings_all_rows (
+        id BIGINT,
         host_id BIGINT,
-        location_id BIGINT FOREIGN KEY,
+        location_id INT,
         neighbourhood VARCHAR(255),
         neighbourhood_cleansed VARCHAR(255),
         neighbourhood_group_cleansed VARCHAR(255),
@@ -465,20 +449,32 @@ cursor.execute('''
         availability_30 INT,
         availability_60 INT,
         availability_90 INT,
-        availability_365 INT,
-        FOREIGN KEY location_id REFERENCES locations(location_id),
+        availability_365 INT
     );
 ''')
 
-sql = 'INSERT INTO listings (id, host_id, location_id, neighbourhood, neighbourhood_cleansed, neighbourhood_group_cleansed, latitude, longitude, property_type, room_type, accommodates, bathrooms, bedrooms, beds, price, minimum_nights, maximum_nights, availability_30, availability_60, availability_90, availability_365) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'
+sql = 'INSERT INTO listings_all_rows (id, host_id, location_id, neighbourhood, neighbourhood_cleansed, neighbourhood_group_cleansed, latitude, longitude, property_type, room_type, accommodates, bathrooms, bedrooms, beds, price, minimum_nights, maximum_nights, availability_30, availability_60, availability_90, availability_365) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'
 for index, row in main.iterrows():
     cursor.execute(sql, tuple(row))
+
+cursor.execute('''
+    CREATE TABLE listings AS (
+        SELECT *
+        FROM listings_all_rows
+        GROUP BY id
+        )
+    ;
+    ''')
+cursor.execute('ALTER TABLE listings ADD PRIMARY KEY (id)')
+cursor.execute('ALTER TABLE listings ADD FOREIGN KEY (host_id) REFERENCES hosts(host_id)')
+cursor.execute('ALTER TABLE listings ADD FOREIGN KEY (location_id) REFERENCES locations(location_id)')
+cursor.execute('DROP TABLE listings_all_rows')
 
 cursor.execute('DROP TABLE IF EXISTS reviews;')
 cursor.execute('''
     CREATE TABLE reviews (
-    id BIGINT FOREIGN KEY,
-    location_id BIGINT,
+    id BIGINT,
+    location_id INT,
     number_of_reviews BIGINT,
     number_of_reviews_ltm BIGINT,
     number_of_reviews_l30d BIGINT,
@@ -489,11 +485,9 @@ cursor.execute('''
     review_scores_communication DOUBLE,
     review_scores_location DOUBLE,
     review_scores_value DOUBLE,
-    FOREIGN KEY id REFERENCES listings(id),
-    FOREIGN KEY location_id REFERENCES locations(location_id)
+    FOREIGN KEY (id) REFERENCES listings(id),
+    FOREIGN KEY (location_id) REFERENCES locations(location_id)
 );
-
-    );
 ''')
 
 sql = "INSERT INTO reviews (id, location_id, number_of_reviews, number_of_reviews_ltm, number_of_reviews_l30d, review_scores_rating, review_scores_accuracy, review_scores_cleanliness, review_scores_checkin, review_scores_communication, review_scores_location, review_scores_value) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)"
