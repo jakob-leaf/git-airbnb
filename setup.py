@@ -76,7 +76,7 @@ locations = {
     66: ['Northern Rivers', 'New South Wales', 'Australia', 'Oceania'],
     67: ['Oakland', 'California', 'United States', 'North America'],
     68: ['Oslo', 'Oslo', 'Norway', 'Europe'],
-    69: ['Ottawa', 'Ontario', 'Canada', 'United States'],
+    69: ['Ottawa', 'Ontario', 'Canada', 'North America'],
     70: ['Pacific Grove', 'California', 'United States', 'North America'],
     71: ['Paris', 'Ile-de-France', 'France', 'Europe'],
     72: ['Pays Basque', 'Pyrenees-Atlantiques', 'France', 'Europe'],
