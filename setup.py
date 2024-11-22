@@ -124,7 +124,7 @@ locations = {
     114: ['Western Australia', 'Western Australia', 'Australia', 'Oceania'],
     115: ['Winnipeg', 'Manitoba', 'Canada', 'North America'],
     116: ['Zurich', 'Zurich', 'Switzerland', 'Europe']
-}
+} # Dictionary of locations key k:v pairs as <location id> : [<city>,<region>,<country>,<continent>]
 
 xls = {
     0: 'albany.xlsx', 1: 'amsterdam.xlsx', 2: 'antwerp.xlsx', 3: 'asheville.xlsx', 4: 'athens.xlsx', 
@@ -155,12 +155,14 @@ xls = {
     108: 'vancouver.xlsx', 109: 'vaud.xlsx', 110: 'venice.xlsx', 111: 'victoria.xlsx', 
     112: 'vienna.xlsx', 113: 'washington_dc.xlsx', 114: 'western_australia.xlsx', 115: 'winnipeg.xlsx', 
     116: 'zurich.xlsx'
-}
+} # Dictionary of all excel files for ingestion 
 
-locations = pd.DataFrame.from_dict(locations, orient='index', columns = ['city', 'region', 'country', 'continent'])
+locations = pd.DataFrame.from_dict(locations, orient='index', columns = ['city', 'region', 'country', 'continent']) # Create data frame of locations
 locations = locations.reset_index()
-locations['location_id'] = locations['index']
-locations = locations.drop('index', axis=1)
+locations['location_id'] = locations['index'] # Pull index into dataframe and name it location_id
+locations = locations.drop('index', axis=1) # Drop duplicate column
+
+# Create dataframes for listings (main), hosts, and reviews and define datatypes for columns
 
 main_columns = [
     "id",
@@ -280,29 +282,31 @@ reviews_dtypes = {
 }
 reviews = pd.DataFrame(columns = reviews_columns)
 
-for i in range(len(xls)):
+for i in range(len(xls)): # Iterate through excels dictionary for ingestion
     try:
-        df = pd.DataFrame(pd.read_excel(xls[i]))
-        df["location_id"] = i
-        df['host_since']=df['host_since'].dt.date
-        i_main = df[main_columns]
-        main = pd.concat([main, i_main], ignore_index = True)
+        df = pd.DataFrame(pd.read_excel(xls[i])) # Read xlsx into memory as a dataframe
+        df["location_id"] = i # Add location_id column to iterative dataframe
+        df['host_since']=df['host_since'].dt.date # Drop time from host_since (only date column in entire database)
+        i_main = df[main_columns] # Split iterative dataframe into main, hosts, and listings tables
+        main = pd.concat([main, i_main], ignore_index = True) # Concatenate iterative subtables into final dataframes
         i_hosts = df[hosts_columns]
         hosts = pd.concat([hosts, i_hosts], ignore_index = True)        
         i_reviews = df[reviews_columns]
         reviews = pd.concat([reviews, i_reviews], ignore_index = True)
-        print(f"location_id {i} loaded successfully")
+        print(f"location_id {i} loaded successfully") # Update for clarity during long runtime
     except Exception as e:
         print(f"issue loading location_id {i}")
         continue
 
-main['price'] = main['price'].str.replace(r'[^\d.]', '', regex=True).astype(float)
-hosts['host_since'] = pd.to_datetime(hosts['host_since'], format='%y/%m/%d %H:%M:%S')
+main['price'] = main['price'].str.replace(r'[^\d.]', '', regex=True).astype(float) # Price column has dollar signs so remove all non-digit or decimal point string values
+hosts['host_since'] = pd.to_datetime(hosts['host_since'], format='%y/%m/%d %H:%M:%S') # Format date
 
-bool_cols = ['host_is_superhost', 'host_has_profile_pic', 'host_identity_verified']
+bool_cols = ['host_is_superhost', 'host_has_profile_pic', 'host_identity_verified'] # Convert 't'/'f' strings to booleans for three columns
 for i in bool_cols:
     hosts[i] = hosts[i].replace('t', True)
     hosts[i] = hosts[i].replace('f', False)
+
+# Convert Numpy nulls to None (for MySQL ingestion) and apply datatypes 
 
 main = main.replace({np.nan: None})
 main.astype(main_dtypes).dtypes
@@ -313,16 +317,16 @@ hosts.astype(hosts_dtypes).dtypes
 reviews = reviews.replace({np.nan: None})
 reviews.astype(reviews_dtypes).dtypes
 
-db = mysconnect.connect(host = 'localhost', user = 'root', password = '')
+db = mysconnect.connect(host = 'localhost', user = 'root', password = '') # Connect to local MySQL server
 cursor = db.cursor()
-cursor.execute('DROP DATABASE IF EXISTS airbnb;')
+cursor.execute('DROP DATABASE IF EXISTS airbnb;') # Create new airbnb datbase
 cursor.execute('CREATE DATABASE airbnb;')
 print('Database airbnb created')
 
-db = mysconnect.connect(host = 'localhost', user = 'root', password = '', database = 'airbnb')
+db = mysconnect.connect(host = 'localhost', user = 'root', password = '', database = 'airbnb') # Use new database in local MySQL server
 cursor = db.cursor()
 
-cursor.execute('DROP TABLE IF EXISTS locations;')
+cursor.execute('DROP TABLE IF EXISTS locations;') # Create and populate locations table from locations dataframe
 cursor.execute('''
     CREATE TABLE locations (
         city varchar(255),
@@ -338,7 +342,7 @@ for index, row in locations.iterrows():
     cursor.execute(sql, tuple(row))
 print('Locations table created')
 
-cursor.execute('DROP TABLE IF EXISTS hosts_all_rows;')
+cursor.execute('DROP TABLE IF EXISTS hosts_all_rows;') # Create and populate hosts_all_rows table from hosts dataframe
 cursor.execute('''
     CREATE TABLE hosts_all_rows (
         host_id BIGINT,
@@ -365,7 +369,7 @@ sql = "INSERT INTO hosts_all_rows (host_id, host_since, host_location, host_resp
 for index, row in hosts.iterrows():
     cursor.execute(sql, tuple(row))
 
-cursor.execute('DROP TABLE IF EXISTS hosts;')
+cursor.execute('DROP TABLE IF EXISTS hosts;') # Create hosts table by removing duplicate host_ids from hosts_all_rows
 cursor.execute('''
     CREATE TABLE hosts AS (
         SELECT *
@@ -378,7 +382,7 @@ cursor.execute('ALTER TABLE hosts ADD PRIMARY KEY (host_id)')
 cursor.execute('DROP TABLE hosts_all_rows')
 print('Hosts table created')
 
-cursor.execute('DROP TABLE IF EXISTS listings_all_rows;')
+cursor.execute('DROP TABLE IF EXISTS listings_all_rows;') # Create and populate listings_all_rows table from main dataframe
 cursor.execute('''
     CREATE TABLE listings_all_rows (
         id BIGINT,
@@ -409,6 +413,7 @@ sql = 'INSERT INTO listings_all_rows (id, host_id, location_id, neighbourhood, n
 for index, row in main.iterrows():
     cursor.execute(sql, tuple(row))
 
+cursor.execute('DROP TABLE IF EXISTS listings;') # Create listings table by removing duplicate ids from listings_all_rows
 cursor.execute('''
     CREATE TABLE listings AS (
         SELECT *
@@ -423,21 +428,21 @@ cursor.execute('ALTER TABLE listings ADD FOREIGN KEY (location_id) REFERENCES lo
 cursor.execute('DROP TABLE listings_all_rows')
 print('Listings table created')
 
-cursor.execute('DROP TABLE IF EXISTS reviews_all;')
+cursor.execute('DROP TABLE IF EXISTS reviews_all;') # Create and populate reviews_all table from reviews dataframe
 cursor.execute('''
     CREATE TABLE reviews_all (
-    id BIGINT,
-    location_id INT,
-    number_of_reviews BIGINT,
-    number_of_reviews_ltm BIGINT,
-    number_of_reviews_l30d BIGINT,
-    review_scores_rating DOUBLE,
-    review_scores_accuracy DOUBLE,
-    review_scores_cleanliness DOUBLE,
-    review_scores_checkin DOUBLE,
-    review_scores_communication DOUBLE,
-    review_scores_location DOUBLE,
-    review_scores_value DOUBLE
+        id BIGINT,
+        location_id INT,
+        number_of_reviews BIGINT,
+        number_of_reviews_ltm BIGINT,
+        number_of_reviews_l30d BIGINT,
+        review_scores_rating DOUBLE,
+        review_scores_accuracy DOUBLE,
+        review_scores_cleanliness DOUBLE,
+        review_scores_checkin DOUBLE,
+        review_scores_communication DOUBLE,
+        review_scores_location DOUBLE,
+        review_scores_value DOUBLE
 );
 ''')
 
@@ -445,6 +450,7 @@ sql = "INSERT INTO reviews_all (id, location_id, number_of_reviews, number_of_re
 for index, row in reviews.iterrows():
     cursor.execute(sql, tuple(row))
 
+cursor.execute('DROP TABLE IF EXISTS reviews;') # Create reviews table by removing duplicate ids from reviews_all
 cursor.execute('''
     CREATE TABLE reviews AS (
         SELECT *
