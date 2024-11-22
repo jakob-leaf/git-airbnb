@@ -124,7 +124,7 @@ locations = {
 114 : ['Western Australia', 'Western Australia', 'Australia', 'Oceania', 1.4011]
 115 : ['Winnipeg', 'Manitoba', 'Canada', 'North America', 1.2651]
 116 : ['Zurich', 'Zurich', 'Switzerland', 'Europe', 0.8855]
-}
+} # Dictionary of locations key k:v pairs as <location id> : [<city>,<region>,<country>,<continent>,<exchange rate from dollars>]
 xls = {
     0: 'albany.xlsx', 1: 'amsterdam.xlsx', 2: 'antwerp.xlsx', 3: 'asheville.xlsx', 4: 'athens.xlsx', 
     5: 'austin.xlsx', 6: 'bangkok.xlsx', 7: 'barcelona.xlsx', 8: 'barossa_valley.xlsx', 
@@ -154,12 +154,14 @@ xls = {
     108: 'vancouver.xlsx', 109: 'vaud.xlsx', 110: 'venice.xlsx', 111: 'victoria.xlsx', 
     112: 'vienna.xlsx', 113: 'washington_dc.xlsx', 114: 'western_australia.xlsx', 115: 'winnipeg.xlsx', 
     116: 'zurich.xlsx'
-}
+} # Dictionary of all excel files for ingestion 
 
-locations = pd.DataFrame.from_dict(locations, orient='index', columns = ['city', 'region', 'country', 'continent', 'exchange'])
+locations = pd.DataFrame.from_dict(locations, orient='index', columns = ['city', 'region', 'country', 'continent', 'exchange']) # Create data frame of locations
 locations = locations.reset_index()
-locations['location_id'] = locations['index']
-locations = locations.drop('index', axis=1)
+locations['location_id'] = locations['index'] # Pull index into dataframe and name it location_id
+locations = locations.drop('index', axis=1) # Drop duplicate column
+
+# Create dataframes for listings (main), hosts, and reviews and define datatypes for columns
 
 main_columns = [
     "id",
@@ -279,35 +281,32 @@ reviews_dtypes = {
 }
 reviews = pd.DataFrame(columns = reviews_columns)
 
-for i in range(len(xls)):
+for i in range(len(xls)): # Iterate through excels dictionary for ingestion
     try:
-        df = pd.DataFrame(pd.read_excel(xls[i]))
-        df["location_id"] = i
-        df['host_since']=df['host_since'].dt.date
-        i_main = df[main_columns]
-        main = pd.concat([main, i_main], ignore_index = True)
+        df = pd.DataFrame(pd.read_excel(xls[i])) # Read xlsx into memory as a dataframe
+        df["location_id"] = i # Add location_id column to iterative dataframe
+        df['host_since']=df['host_since'].dt.date # Drop time from host_since (only date column in entire database)
+        i_main = df[main_columns] # Split iterative dataframe into main, hosts, and listings tables
+        main = pd.concat([main, i_main], ignore_index = True) # Concatenate iterative subtables into final dataframes
         i_hosts = df[hosts_columns]
         hosts = pd.concat([hosts, i_hosts], ignore_index = True)        
         i_reviews = df[reviews_columns]
         reviews = pd.concat([reviews, i_reviews], ignore_index = True)
-        print(f"location_id {i} loaded successfully")
+        print(f"location_id {i} loaded successfully") # Update for clarity during long runtime
     except Exception as e:
         print(f"issue loading location_id {i}")
         continue
 
-main['price'] = main['price'].str.replace(r'[^\d.]', '', regex=True).astype(float)
-hosts['host_since'] = pd.to_datetime(hosts['host_since'], format='%y/%m/%d %H:%M:%S')
+main['price'] = main['price'].str.replace(r'[^\d.]', '', regex=True).astype(float) # Price column has dollar signs so remove all non-digit or decimal point string values
+hosts['host_since'] = pd.to_datetime(hosts['host_since'], format='%y/%m/%d %H:%M:%S') # Format date
 
-bool_cols = ['host_is_superhost', 'host_has_profile_pic', 'host_identity_verified']
+bool_cols = ['host_is_superhost', 'host_has_profile_pic', 'host_identity_verified'] # Convert 't'/'f' strings to booleans for three columns
 for i in bool_cols:
     hosts[i] = hosts[i].replace('t', True)
     hosts[i] = hosts[i].replace('f', False)
 
-main = main.replace({np.nan: None})
+# Apply datatypes 
+
 main.astype(main_dtypes).dtypes
-
-hosts = hosts.replace({np.nan: None})
 hosts.astype(hosts_dtypes).dtypes
-
-reviews = reviews.replace({np.nan: None})
 reviews.astype(reviews_dtypes).dtypes
