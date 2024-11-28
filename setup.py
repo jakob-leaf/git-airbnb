@@ -18,7 +18,7 @@ locations = {
     8: ['Barossa Valley', 'South Australia', 'Australia', 'Oceania'],
     9: ['Barwon South West', 'Victoria', 'Australia', 'Oceania'],
     10: ['Belize', 'Belize', 'Belize', 'North America'],
-    11: ['Bergamo', 'Belize', 'Belize', 'North America'],
+    11: ['Bergamo', 'Lombardia', 'Italy', 'Europe'],
     12: ['Berlin', 'Berlin', 'Germany', 'Europe'],
     13: ['Bologna', 'Emiglia-Romagna', 'Italy', 'Europe'],
     14: ['Bordeaux', 'Bouvelle-Aquitaine', 'France', 'Europe'],

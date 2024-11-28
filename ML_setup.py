@@ -310,3 +310,7 @@ for i in bool_cols:
 main.astype(main_dtypes).dtypes
 hosts.astype(hosts_dtypes).dtypes
 reviews.astype(reviews_dtypes).dtypes
+
+main.to_parquet('main.parquet')
+hosts.to_parquet('hosts.parquet')
+reviews.to_parquet('reviews.parquet')
