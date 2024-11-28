@@ -8,13 +8,13 @@ SET exchange = CASE country
     WHEN 'Greece' THEN 0.9506
     WHEN 'Thailand' THEN 34.6341
     WHEN 'Spain' THEN 0.9506
-    WHEN 'Australia' THEN 1.4011
+    WHEN 'Australia' THEN 1.5411
     WHEN 'Belize' THEN 2.0000
     WHEN 'Germany' THEN 0.9506
     WHEN 'Italy' THEN 0.9506
     WHEN 'France' THEN 0.9506
     WHEN 'United Kingdom' THEN 0.7905
-    WHEN 'Argentina' THEN 350.0000
+    WHEN 'Argentina' THEN 1009.2400
     WHEN 'South Africa' THEN 18.1078
     WHEN 'Denmark' THEN 7.1400
     WHEN 'Ireland' THEN 0.9506
@@ -23,13 +23,13 @@ SET exchange = CASE country
     WHEN 'Turkey' THEN 34.4653
     WHEN 'Portugal' THEN 0.9506
     WHEN 'Mexico' THEN 20.2313
-    WHEN 'Canada' THEN 1.2651
+    WHEN 'Canada' THEN 1.4051
     WHEN 'New Zealand' THEN 1.7031
     WHEN 'Norway' THEN 11.0716
-    WHEN 'Czech Republic' THEN 22.1300
+    WHEN 'Czech Republic' THEN 23.1300
     WHEN 'Latvia' THEN 0.9506
-    WHEN 'Brazil' THEN 5.2000
-    WHEN 'Chile' THEN 900.0000
+    WHEN 'Brazil' THEN 5.7000
+    WHEN 'Chile' THEN 950.0000
     WHEN 'Singapore' THEN 1.3445
     WHEN 'Sweden' THEN 11.0473
     WHEN 'Taiwan' THEN 32.5400
