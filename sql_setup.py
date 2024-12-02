@@ -340,6 +340,7 @@ cursor.execute('''
 sql = 'INSERT INTO locations (city, region, country, continent, location_id) VALUES (%s, %s, %s, %s, %s)'
 for index, row in locations.iterrows():
     cursor.execute(sql, tuple(row))
+
 print('Locations table created')
 
 cursor.execute('DROP TABLE IF EXISTS hosts_all_rows;') # Create and populate hosts_all_rows table from hosts dataframe
